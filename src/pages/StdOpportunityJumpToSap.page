@@ -1,0 +1,41 @@
+<apex:page standardController="Opportunity" docType="html-5.0" showHeader="false" sidebar="false" standardStylesheets="false">
+    <apex:includeScript value="/canvas/sdk/js/publisher.js" />
+    <script>
+    try {
+        var opptyId = '{!Opportunity.SAP_Opportunity_ID__c}';
+        var sapUsername = '{!$User.SAP_Username__c}';
+        
+        if (opptyId !== '' && sapUsername !== '') {
+            var system = '{!$Setup.SapJumpConfiguration__c.System__c}';
+            var client = '{!$Setup.SapJumpConfiguration__c.Client__c}';
+            var command = '{!$Setup.SapJumpConfiguration__c.Command__c}';
+            
+            if (system === '' || client === '' || command === '') {
+                alert('{!$Label.OPPORTUNITY_MSG_SAP_JUMP_CONFIGURATION_MISSING}');
+            }
+            else {
+                var oShell = new ActiveXObject("WScript.Shell");
+                
+                var commandLine = 'sapshcut.exe';
+                commandLine += ' -system="' + system + '"';
+                commandLine += ' -client="' + client + '"';
+                commandLine += ' -user="' + sapUsername + '"';
+                commandLine += ' -language="{!$Label.SAP_USER_LANGUAGE_CODE}"';
+                commandLine += ' -Command="' + command + '{!Opportunity.SAP_Opportunity_ID__c}' + '"';
+                
+                console.log(commandLine);
+                
+                oShell.run(commandLine);
+            }
+        }
+    }
+    catch (exc) {
+        console.log(exc);
+        
+        alert('{!$Label.OPPORTUNITY_MSG_SAP_JUMP_FAILED}');
+    }
+    
+    Sfdc.canvas.publisher.publish({name: "publisher.close",
+                                   payload: { refresh:"false" } });
+    </script>
+</apex:page>

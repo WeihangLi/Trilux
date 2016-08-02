@@ -1,0 +1,66 @@
+<apex:page standardController="Opportunity" extensions="ExtCreateOpportunity" >
+    <apex:sectionHeader subtitle="New Opportunity" title="Opportunity Edit"/>
+    <apex:form >
+        <apex:pageblock title="Opportunity Edit">
+            <apex:pageblockbuttons >
+                <apex:commandbutton value="Save" action="{!saveOpp}" />
+                <apex:commandbutton value="Save & New" action="{!saveNew}" />
+                <apex:commandbutton value="Cancel" action="{!cancel}" />
+            </apex:pageblockbuttons>
+            <apex:pageblocksection title="Opportunity Information"> 
+                <apex:inputField value="{!opp.Name}" />
+                <apex:inputField value="{!opp.Type}" />
+                <apex:inputField value="{!opp.AccountId}" required="true"/>
+                <apex:inputField value="{!opp.StageName}" />
+                <apex:inputField value="{!opp.Related_Project__c}" required="true"/>
+                <apex:inputField value="{!opp.Opportunity_Lost_To__c}" />
+                <apex:inputField value="{!opp.SORG__c}" required="true"/>
+                <apex:inputField value="{!opp.Opportunity_Lost_Reason__c}" />
+                <apex:inputField value="{!opp.Submission_Date__c}" />
+                <apex:inputField value="{!opp.Top_Project__c}" />
+                <apex:inputField value="{!opp.Follow_Opportunity__c}" />
+                <apex:inputField value="{!opp.CurrencyIsoCode}" />
+                <apex:inputField value="{!opp.SAP_Opportunity_ID__c}" />
+                <apex:outputLabel />
+                <apex:inputField value="{!opp.Statistic_Flag__c}" required="true"/>
+                <apex:outputLabel />
+                <apex:inputField value="{!opp.Opportunity_Won_Reason__c}" />
+                <apex:outputLabel />
+                <apex:inputField value="{!opp.Probability_Custom__c}" />
+            </apex:pageblocksection>
+            <apex:pageblocksection title="Additional Information">
+                <apex:inputField value="{!opp.Description}" />
+                <apex:inputField value="{!opp.NextStep}" />
+            </apex:pageblocksection>
+            <apex:pageblocksection title="Sales Data">
+                <apex:inputField value="{!opp.Amount}" />
+                <apex:inputField value="{!opp.Probability}" required="false" />
+                <apex:inputField value="{!opp.Degree_Of_Fulfillment__c}" />
+                <apex:inputField value="{!opp.CloseDate}" />
+                <apex:inputField value="{!opp.Sales_Channels__c}" required="true"/>
+                <apex:inputField value="{!opp.Ensured_Order_Value__c}" />
+                <apex:inputField value="{!opp.Vertical_Market__c}" required="true"/>
+                <apex:inputField value="{!opp.Sales_Regions__c}" required="true"/>
+                <apex:inputField value="{!opp.Application_Area__c}" required="true"/>
+                <apex:outputField value="{!opp.OwnerId}" />
+            </apex:pageblocksection>
+            <apex:pageblocksection title="Margin">
+                <apex:inputField value="{!opp.Margin_Offer_P1__c}" />
+                <apex:inputField value="{!opp.Margin_Order_P1__c}" />
+                <apex:inputField value="{!opp.Margin_Offer_P2__c}" />
+                <apex:inputField value="{!opp.Margin_Order_P2__c}" />
+                <apex:inputField value="{!opp.Margin_Offer_PAP__c}" />
+                <apex:inputField value="{!opp.Margin_Order_PAP__c}" />
+                <apex:inputField value="{!opp.Margin_Offer_PC__c}" />
+                <apex:inputField value="{!opp.Margin_Order_PC__c}" />
+            </apex:pageblocksection>
+            <apex:pageblocksection title="Reference Project Information">
+                <apex:inputField value="{!opp.Is_Reference_Project__c}" />
+                <apex:inputField value="{!opp.Status_Reference_Project__c}" />
+                <apex:inputField value="{!opp.Reference_Description__c}" />
+                <apex:outputlabel />
+                <apex:inputField value="{!opp.Reasons_for_Reference__c}" />
+            </apex:pageblocksection>
+        </apex:pageblock>
+    </apex:form>
+</apex:page>

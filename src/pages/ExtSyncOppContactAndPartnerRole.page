@@ -1,0 +1,2 @@
+<apex:page standardController="Opportunity" extensions="ExtSyncOppContactAndPartnerRole" action="{!syncOppContactAndPartnerRole}">
+</apex:page>

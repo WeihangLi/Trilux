@@ -1,0 +1,331 @@
+<apex:page standardcontroller="Account" tabstyle="Account" showHeader="true">
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=places"></script> 
+    <apex:form id="searchform">
+      <apex:sectionheader title="Account Edit" subtitle="{!if(Account.Id==null,'New Account',Account.Name)}">
+      </apex:sectionheader>
+      <apex:pageblock mode="edit" id="AccountPB" title="Account Edit">
+         <apex:pageblockbuttons >
+             <apex:commandbutton action="{!save}" value="Save"></apex:commandbutton>
+             <apex:commandbutton action="{!cancel}" value="Cancel"></apex:commandbutton>
+         </apex:pageblockbuttons>
+         <apex:pagemessages >
+         </apex:pagemessages>
+         <apex:pageBlockSection id="searchblocksection" columns="3" title="Address Search" >
+             <apex:outputLabel value="Global Address Search" for="field" style="font-weight:bold;"/>
+             <apex:inputText label="" size="60" id="addressfield" >
+             <apex:actionSupport event="onchange" oncomplete="SetStateCode()" rerender="Billing_StateCode"/>
+             </apex:inputText>
+         </apex:pageBlockSection>
+         <apex:pageblocksection id="AddressInformationPBS" title="Address Information" columns="2" collapsible="true">    
+             <apex:inputfield taborderhint="1" value="{!Account.Name}" id="name"></apex:inputfield>
+             <apex:inputText label="Str. Number" id="street_number" disabled="True"/>
+             <apex:inputfield taborderhint="2" value="{!Account.Account_Name2__c}"></apex:inputfield>
+             <apex:inputText label="Street" id="route" disabled="True"/>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:inputText label="State Code" id="statecode" disabled="True"/>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:inputText label="State1" id="administrative_area_level_1" disabled="True"/>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:inputText label="State2" id="administrative_area_level_2" disabled="True"/>
+             <apex:inputfield taborderhint="4" value="{!Account.BillingStreet}" id="street"></apex:inputfield>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:inputfield taborderhint="5" value="{!Account.BillingPostalCode}" id="postal_code"></apex:inputfield>
+             <apex:inputfield taborderhint="12" value="{!Account.Postoffice_Box__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="6" value="{!Account.BillingCity}" id="locality"></apex:inputfield>
+             <apex:inputfield taborderhint="13" value="{!Account.Postoffice_Box_Zip_Code__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="7" value="{!Account.Billing_City2_District__c}" id="postal_town"></apex:inputfield>
+             <apex:inputfield taborderhint="14" value="{!Account.Postoffice_Box_City__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="8" value="{!Account.BillingCountryCode}" id="country"/>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:inputfield taborderhint="9" value="{!Account.BillingStateCode}" id="Billing_StateCode"/>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:inputField taborderhint="10" value="{!Account.Phone}" required="True" id="international_phone_number"></apex:inputfield>
+             <apex:inputfield taborderhint="15" value="{!Account.Email__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="11" value="{!Account.Fax}"></apex:inputfield>
+             <apex:inputfield taborderhint="16" value="{!Account.Website}" id="website"></apex:inputfield>
+             
+             
+         </apex:pageblocksection>
+         <apex:pageblocksection id="AccountInformationPBS" title="Account Information" columns="2" collapsible="true" >
+             <apex:inputfield taborderhint="17" value="{!Account.External_ID_SAP__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="24" value="{!Account.Turnover_Tax_Number__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="18" value="{!Account.Type}"></apex:inputfield>
+             <apex:inputfield taborderhint="25" value="{!Account.Headquarter_Identification__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="19" value="{!Account.Industry}" required="True" ></apex:inputfield>
+             <apex:inputfield taborderhint="26" value="{!Account.Rating}"></apex:inputfield>
+             <apex:inputfield taborderhint="20" value="{!Account.SubIndustry__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="27" value="{!Account.Account_Language__c}" required="True"></apex:inputfield>
+             <apex:inputfield taborderhint="21" value="{!Account.Initial_Sales_Channel__c}" required="True"></apex:inputfield>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:inputfield taborderhint="22" value="{!Account.Initial_Sales_Org__c}" ></apex:inputfield>
+             <apex:inputfield taborderhint="23" value="{!Account.Deletion_Flag__c}"></apex:inputfield>
+         </apex:pageblocksection>
+
+         <apex:pageblocksection id="KAMInformationPBS" title="KAM Information" columns="2" collapsible="true" showheader="True">  
+             <apex:inputfield taborderhint="28" value="{!Account.KAM_Category__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="29" value="{!Account.KAM_Classification__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="30" value="{!Account.Global_Agreement__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="31" value="{!Account.Global_Agreement_Link__c}"></apex:inputfield>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:inputfield taborderhint="32" value="{!Account.Margin__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="37" value="{!Account.Turnover_Potential__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="33" value="{!Account.Price_Orientation__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="38" value="{!Account.Future_Potential__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="34" value="{!Account.Requirement_of_Resources__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="39" value="{!Account.Export_Effort__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="35" value="{!Account.Contact_Quality__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="40" value="{!Account.Decision_Making_Process__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="36" value="{!Account.Ability_To_Meet_Requirements__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="41" value="{!Account.Ability_to_Differenciate__c}"></apex:inputfield>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:outputtext value=""></apex:outputtext>
+             <apex:inputfield taborderhint="42" value="{!Account.KAM_Last_Modified_Date__c}"></apex:inputfield>
+          </apex:pageblocksection>
+          <apex:pageblocksection id="P2CPBS" title="Prospect to Customer Request" columns="2" collapsible="true">       
+             <apex:inputfield taborderhint="43" value="{!Account.Estimated_Order_REQ__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="44" value="{!Account.Sales_Org_REQ__c}"></apex:inputfield>
+             <apex:inputfield taborderhint="45" value="{!Account.Info_Text_REQ__c}"></apex:inputfield>
+          </apex:pageblocksection>
+          <apex:pageblocksection id="SysteminformationPBS" title="System Information" columns="2" collapsible="true">       
+             <apex:inputfield taborderhint="46" value="{!Account.IsExcludedFromRealign}"></apex:inputfield>
+             <apex:inputfield taborderhint="47" value="{!Account.Territory_Data__c}"></apex:inputfield>
+          </apex:pageblocksection> 
+
+      </apex:pageblock>
+    </apex:form>
+    <script>  
+        // This example displays an address form, using the autocomplete feature
+        // of the Google Places API to help users fill in the information.
+
+        //var autocomplete;
+        var componentForm = {
+            name: 'long_name',
+            international_phone_number: 'long_name',
+            locality: 'long_name',
+            postal_town: 'long_name',
+            administrative_area_level_1: 'short_name',
+            administrative_area_level_2: 'short_name',
+            country: 'short_name',
+            postal_code: 'short_name',
+            route: 'long_name',
+            street_number: 'long_name',
+            street: 'long_name',
+            website: 'long_name',
+        };
+
+        function initialize() {
+            // Create the autocomplete object, restricting the search
+            // to geographical location types.
+            var input = document.getElementById('{!$Component.searchform.AccountPB.searchblocksection.addressfield}');
+            var options = { 
+                types: []
+                };
+            autocomplete = new google.maps.places.Autocomplete(input, options);
+            // When the user selects an address from the dropdown,
+            // populate the address fields in the form.
+            google.maps.event.addListener(autocomplete, 'place_changed', function() {
+                fillInAddress();
+            });
+        }
+
+        // [START region_fillform]
+        function fillInAddress() {
+            // Get the place details from the autocomplete object.
+            var place = autocomplete.getPlace();
+            console.log(place);
+            
+            for (var component in componentForm) {
+                //document.getElementById(component).value = '';
+                //document.getElementById(component).disabled = false;
+            }
+
+            // Get each component of the address from the place details
+            // and fill the corresponding field on the form.
+            
+            var route = '';
+            var street_number = '';
+            var administrative_area_level_1 = '';
+            var administrative_area_level_2 = '';
+            var country = '';
+
+            for (var i = 0; i < place.address_components.length; i++) {
+                var addressType = place.address_components[i].types[0];
+                
+                if (addressType === 'country') {
+                    country = place.address_components[i][componentForm[addressType]];
+                }
+            }
+            for (var i = 0; i < place.address_components.length; i++) {
+                var addressType = place.address_components[i].types[0];
+                
+                if (addressType === 'route') {
+                    route = place.address_components[i][componentForm[addressType]];
+                }
+                if (addressType === 'street_number') {
+                    street_number = place.address_components[i][componentForm[addressType]];
+                }
+                if (addressType === 'administrative_area_level_1') {
+                    administrative_area_level_1 = place.address_components[i][componentForm[addressType]];
+                    if (country === 'NL') {
+                        if (administrative_area_level_1 === 'DR') { administrative_area_level_1 = '01';}
+                        if (administrative_area_level_1 === 'FL') { administrative_area_level_1 = '02';}
+                        if (administrative_area_level_1 === 'Frater') { administrative_area_level_1 = '03';}
+                        if (administrative_area_level_1 === 'GE') { administrative_area_level_1 = '04';}
+                        if (administrative_area_level_1 === 'GR') { administrative_area_level_1 = '05';}
+                        if (administrative_area_level_1 === 'LI') { administrative_area_level_1 = '06';}
+                        if (administrative_area_level_1 === 'NB') { administrative_area_level_1 = '07';}
+                        if (administrative_area_level_1 === 'NH') { administrative_area_level_1 = '08';}
+                        if (administrative_area_level_1 === 'Overste') { administrative_area_level_1 = '09';}
+                        if (administrative_area_level_1 === 'UT') { administrative_area_level_1 = '10';}
+                        if (administrative_area_level_1 === 'ZE') { administrative_area_level_1 = '11';}
+                        if (administrative_area_level_1 === 'ZH') { administrative_area_level_1 = '12';}
+                    }
+                    if (country === 'AT') {
+                        if (administrative_area_level_1 === 'Burgenland') { administrative_area_level_1 = 'B';}
+                        if (administrative_area_level_1 === 'Kärnten') { administrative_area_level_1 = 'K';}
+                        if (administrative_area_level_1 === 'Niederösterreich') { administrative_area_level_1 = 'NOE';}
+                        if (administrative_area_level_1 === 'Oberösterreich') { administrative_area_level_1 = 'OOE';}
+                        if (administrative_area_level_1 === 'Salzburg') { administrative_area_level_1 = 'S';}
+                        if (administrative_area_level_1 === 'Steiermark') { administrative_area_level_1 = 'ST';}
+                        if (administrative_area_level_1 === 'Tirol') { administrative_area_level_1 = 'T';}
+                        if (administrative_area_level_1 === 'Vorarlberg') { administrative_area_level_1 = 'V';}
+                        if (administrative_area_level_1 === 'Wien') { administrative_area_level_1 = 'W';}
+                    }
+                    if (country === 'DE') {
+                        if (administrative_area_level_1 === 'SH') { administrative_area_level_1 = '01';}
+                        if (administrative_area_level_1 === 'HH') { administrative_area_level_1 = '02';}
+                        if (administrative_area_level_1 === 'NDS') { administrative_area_level_1 = '03';}
+                        if (administrative_area_level_1 === 'HB') { administrative_area_level_1 = '04';}
+                        if (administrative_area_level_1 === 'NRW') { administrative_area_level_1 = '05';}
+                        if (administrative_area_level_1 === 'HE') { administrative_area_level_1 = '06';}
+                        if (administrative_area_level_1 === 'RP') { administrative_area_level_1 = '07';}
+                        if (administrative_area_level_1 === 'BW') { administrative_area_level_1 = '08';}
+                        if (administrative_area_level_1 === 'BY') { administrative_area_level_1 = '09';}
+                        if (administrative_area_level_1 === 'SL') { administrative_area_level_1 = '10';}
+                        if (administrative_area_level_1 === 'Berlin') { administrative_area_level_1 = '11';}
+                        if (administrative_area_level_1 === 'BB') { administrative_area_level_1 = '12';}
+                        if (administrative_area_level_1 === 'MV') { administrative_area_level_1 = '13';}
+                        if (administrative_area_level_1 === 'SN') { administrative_area_level_1 = '14';}
+                        if (administrative_area_level_1 === 'SA') { administrative_area_level_1 = '15';}
+                        if (administrative_area_level_1 === 'Thüringen') { administrative_area_level_1 = '16';}
+                    }
+                    if (country === 'CH') {
+                        if (administrative_area_level_1 === 'Aktiengesellschaft') { administrative_area_level_1 = 'AG';}
+                        if (administrative_area_level_1 === 'Nordwest') { administrative_area_level_1 = 'NW';}
+                        if (administrative_area_level_1 === 'Südost') { administrative_area_level_1 = 'SO';}
+                    }
+                }
+                if (addressType === 'administrative_area_level_2') {
+                    administrative_area_level_2 = place.address_components[i][componentForm[addressType]];
+                    if (country === 'BE') { 
+                        if (administrative_area_level_2 === 'AN') { administrative_area_level_2 = '01';}
+                        if (administrative_area_level_2 === 'VB') { administrative_area_level_2 = '02';}
+                        if (administrative_area_level_2 === 'HT') { administrative_area_level_2 = '03';}
+                        if (administrative_area_level_2 === 'LG') { administrative_area_level_2 = '04';}
+                        if (administrative_area_level_2 === 'LI') { administrative_area_level_2 = '05';}
+                        if (administrative_area_level_2 === 'LX') { administrative_area_level_2 = '06';}
+                        if (administrative_area_level_2 === 'NA') { administrative_area_level_2 = '07';}
+                        if (administrative_area_level_2 === 'OV') { administrative_area_level_2 = '08';}
+                        if (administrative_area_level_2 === 'WV') { administrative_area_level_2 = '09';}
+                        if (administrative_area_level_2 === 'BW') { administrative_area_level_2 = '10';}
+                        if (administrative_area_level_2 === '') { administrative_area_level_2 = '11';}
+                    }
+                }
+                if (componentForm[addressType]) {
+                    var val = place.address_components[i][componentForm[addressType]];              
+                    var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+addressType;
+                    document.getElementById(elem_id).value = val;
+                }
+            }
+            console.log(place);
+            var valname = place['name'];
+            var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'name';
+            if (valname === route + ' ' + street_number) {
+                document.getElementById(elem_id).value = '';
+            }
+            if (valname !== route + ' ' + street_number) {
+                document.getElementById(elem_id).value = valname;
+            }
+
+            var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'street';
+            document.getElementById(elem_id).value = route + ' ' + street_number;
+
+            
+            var valphone = place['international_phone_number'];
+            var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'international_phone_number';
+            if (valphone === undefined) {
+                document.getElementById(elem_id).value = '';
+            }
+            if (valphone !== undefined) {
+                document.getElementById(elem_id).value = valphone;
+            }
+            
+            var valwebsite = place['website'];
+            var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'website';
+            if (valwebsite === undefined) {
+                document.getElementById(elem_id).value = '';
+            }
+            if (valwebsite !== undefined) {
+                document.getElementById(elem_id).value = valwebsite;
+            }
+            
+            if (country === 'NL') {
+                var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'Billing_StateCode';
+                document.getElementById(elem_id).value = administrative_area_level_1;
+                var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'statecode';
+                document.getElementById(elem_id).value = administrative_area_level_1;
+            }
+            if (country === 'AT') {
+                var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'Billing_StateCode';
+                document.getElementById(elem_id).value = administrative_area_level_1;
+                var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'statecode';
+                document.getElementById(elem_id).value = administrative_area_level_1;
+            }
+            if (country === 'DE') {
+                var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'Billing_StateCode';
+                document.getElementById(elem_id).value = administrative_area_level_1;
+                var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'statecode';
+                document.getElementById(elem_id).value = administrative_area_level_1;
+            }
+            if (country === 'CH') {
+                var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'Billing_StateCode';
+                document.getElementById(elem_id).value = administrative_area_level_1;
+                var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'statecode';
+                document.getElementById(elem_id).value = administrative_area_level_1;
+            }
+            if (country === 'BE') {
+                var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'Billing_StateCode';
+                document.getElementById(elem_id).value = administrative_area_level_2;
+                var elem_id = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'statecode';
+                document.getElementById(elem_id).value = administrative_area_level_2;
+            }
+        }
+        // [END region_fillform]
+   
+    //window.onload=function(){ 
+            initialize();  
+    //    };
+    SetStateCode = function(){
+    var elem_id_source = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'statecode';
+    var elem_id_target = '{!$Component.searchform.AccountPB.AddressInformationPBS.}'+":"+'Billing_StateCode';
+          document.getElementById(elem_id_target).value = document.getElementById(elem_id_source).value;
+    }
+    $('html').bind('keypress', function(e)
+    {
+   if(e.keyCode == 13)
+   {
+      return false;
+   }
+    });
+    </script>
+    <script type="text/javascript">
+        
+    </script>
+    
+</apex:page>

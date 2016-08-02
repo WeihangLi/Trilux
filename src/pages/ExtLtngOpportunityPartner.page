@@ -1,0 +1,16 @@
+<apex:page standardController="Opportunity_Partner__c" extensions="ExtLtngOpportunityPartner">
+    <apex:includeLightning />
+    <div id="lightning" />
+    <script>
+        $Lightning.use("c:LtngOppyPartnerApp", function() {
+          $Lightning.createComponent("c:LtngOppyPartnerCmp",
+          { label : "",
+          "oppyId" : "{!oppy.Id}",
+          "oppyName": "{!oppy.Name}"},
+          "lightning",
+          function(cmp) {
+            // do some stuff
+          });
+        });
+    </script>
+</apex:page>

@@ -1,0 +1,198 @@
+<apex:page controller="CtrlPopUpWindow" sidebar="false" showheader="false">
+	<apex:includeScript value="{!URLFOR($Resource.Library_jQuery, 'jQuery/jquery-1.10.2.min.js')}" />
+	<script type="text/javascript">
+    
+    parent.document.getElementById('loading').style.display = "none";
+    parent.document.getElementById('iframDiv').style.display = "block";
+    //used to boolean or picklist insert value
+    function parentlookupPick1(){
+    	var str = '';
+    	var valStr = '';
+    	var fdType = $(".fdType").val();
+    	if(fdType == 'BOOLEAN'){
+	    	$(".itemsTable").find(".dataRow").each(function(){
+	    		if($(this).find('.rad').is(":checked")){
+	    			str = $(this).find('.rad').val();
+	    			valStr = $(this).find('.rad').val();
+	    		}
+	    	});
+    	}else if(fdType == 'PICKLIST'){
+    		$(".itemsTable").find(".dataRow").each(function(){
+	    		if($(this).find('.chk').is(":checked")){
+	    			str += $(this).find('.showLabel').text()+',';
+	    			valStr += $(this).find('.chk').val()+','; 
+	    		}
+	    	});
+	    	str = str.substring(0,str.length - 1);
+	    	valStr = valStr.substring(0,valStr.length - 1);
+    	}else if(fdType == 'REFERENCE'){
+    		$(".itemsTable").find(".dataRow").each(function(){
+	    		if($(this).find('.lkpChk').is(":checked")){
+	    			str += $(this).find('.showLabel').text()+',';
+	    			valStr += $(this).find('.lkpChk').val()+',';
+	    		}
+	    	});
+	    	str = str.substring(0,str.length - 1);
+	    	valStr = valStr.substring(0,valStr.length - 1);
+    	}
+    	//if(str != '' && valStr != ''){
+    		parent.setLookUpVal(str,valStr);
+    		parent.closeLookUp();
+    	//}
+    }
+    
+    function clearSearch(){
+        $('#lksrch').find('input[type="text"]').val('');
+        doSearch();
+    }
+    function startSearch(){
+        doSearch();
+    }
+    function checkEnter(evt){
+        if(evt.keyCode == 13){
+            if(evt.preventDefault)
+            evt.preventDefault();
+            else
+            event.returnValue = false;
+            
+            if(evt.stopPropagation){
+                evt.stopPropagation();
+            }else{
+                event.cancelBubble=true;
+            }
+            startSearch();
+        }
+    }
+    </script>
+    <style>
+        .hide{display:none;}
+        .titleLine{background-color:#ccc;position:fixed;width:100%;border-bottom:1px solid #aaa;float:left;}
+        .icon_close{border-width:1px;border-style:solid;border-color:#bbb;
+            height:20px;width:20px;text-align:center;
+            line-height:20px;cursor:pointer;float:right;font-size:20px;}
+        .icon_close:hover{border-color:#aaa;font-weight:bold;}
+        .lookupTab .lookup .bPageTitle .content h1{font-size:1.8em;}
+        .lookupTab .lookup .lookupBlock .lookupResultTable{border-collapse:collapse;border:1px solid #ececec;}
+        .lookupTab .lookup .lookupBlock .lookupResultTable tr{border:1px solid #ececec;}
+        .lookupTab .lookup .lookupBlock .lookupResultTableDiv{max-height: 260px;overflow-y:auto;}
+    </style>
+    <apex:messages />
+    <apex:form id="form" styleClass="lookupTab">
+        <apex:actionFunction name="doSearch" action="{!searchResult}" rerender="pbBlock" status="loadingStatus"/>
+        <div class="titleLine"><div class="icon_close" onclick="parent.closeLookUp();">&times;</div></div>
+        
+        <apex:inputText value="{!fieldType}" styleClass="fdType" style="display:none;"/>
+        <apex:pageBlock mode="maindetail" id="pbBlock" >
+            <div class="lookup">
+                <div class="bPageTitle">
+                    <div class="ptBody secondaryPalette">
+                        <div class="content">
+                            <img src="/s.gif" alt="" class="pageTitleIcon" title=""/>
+                            <h1>{!$Label.Look_Up_Title}</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="pBody" style="display:{!IF(fieldType == 'REFERENCE','','none')}">
+                    <label for="lksrch">{!$Label.Search}</label>
+                    <span id="lksrch">
+                        <apex:inputText value="{!searchStr}"  maxlength="80" size="20" onkeypress="checkEnter(event);" styleClass="lkInput"/>
+                    </span>
+                    <input value="{!$Label.Search}" class="btn" name="go" title="{!$Label.Search}" type="button" onclick="startSearch();"/>
+                    <apex:actionStatus startText="" stopText="" id="loadingStatus">
+                        <apex:facet name="start"><img src="/img/loading.gif"/></apex:facet>
+                    </apex:actionStatus>
+                </div>
+                <div>
+                	<h2 style="font-weight: bold;">{!$Label.Select_Value_Description}</h2>
+                </div>
+                <div>
+                	<input type="button" value="{!$Label.Insert_Selected_Button}" class="btn" style="margin-left:40%" onclick="parentlookupPick1();"/>
+                </div>
+            </div>
+            <div class="lookup" style="height:230px;">
+                <div class="srch">{!$Label.SearchResults}</div>
+                <div class="listRelatedObject lookupBlock">
+                    <div class="bPageBlock brandSecondaryBrd secondaryPalette">
+                        <div class="pbHeader"> 
+                        </div>
+                        <div class="pbBody lookupResultTableDiv">
+                        
+                            <table class="list lookupResultTable itemsTable" border="0" cellspacing="0" cellpadding="0">
+                                <tbody>
+                                    <tr class="headerRow">
+                                    	<th class="actionColumn" scope="col">&nbsp;</th>
+                                        <th scope="col" class="zen-deemphasize">{!$Label.Value}</th> 
+                                    </tr>
+                                    <apex:repeat value="{!list_Items}" var="item" rendered="{!fieldType != 'REFERENCE'}">
+                                        <tr class="dataRow even last first">
+                                        	<td class="actionColumn">
+                                        		<apex:outputPanel rendered="{!fieldType == 'BOOLEAN'}">
+                                        			<input class="rad" type="radio" name="chkbox" value="{!item}"/>
+                                        		</apex:outputPanel>
+                                        		<apex:outputPanel rendered="{!fieldType == 'PICKLIST'}">
+                                        			<input class="chk" type="checkbox" value="{!map_pickLabel_pickVal[item]}"/>
+                                        		</apex:outputPanel> 
+                                        	</td>	
+                                            <td class="dataCell">
+                                                <apex:outputLabel rendered="{!fieldType == 'PICKLIST'}"><span class="showLabel">{!item}</span></apex:outputLabel>
+                                                 <apex:outputLabel rendered="{!fieldType == 'BOOLEAN'}"><span class="showLabel">{!item}</span></apex:outputLabel>
+                                            </td>
+                                        </tr>
+                                   </apex:repeat>
+                                   <apex:repeat value="{!list_refInfos}" var="item" rendered="{!fieldType == 'REFERENCE'}">
+                                        <tr class="dataRow even last first">
+                                        	<td class="actionColumn">
+                                        		<apex:outputPanel >
+                                        			<input class="lkpChk" type="checkbox" name="lkpName" value="{!item.recordId}"/>
+                                        		</apex:outputPanel>
+                                        	</td>	
+                                            <td class="dataCell">
+                                                <span class="showLabel">{!item.recordName}</span>
+                                            </td>
+                                        </tr>
+                                   </apex:repeat>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pbFooter secondaryPalette">
+                            <div class="bg"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </apex:pageBlock>
+    </apex:form>
+    <script type="text/javascript">
+        (function(){
+            var str = parent.searchVal;
+            if(str ===null ||str===undefined)str = '';
+            $('#lksrch').find('input[type="text"]').val(str);
+        }());
+        function initSelValue(){
+        	var selValue = '{!selectedValue}';
+        	if(selValue != null && selValue != ''){
+        		var fdType = '{!fieldType}';
+        		if(fdType == 'PICKLIST'){
+	        		$(".lookupResultTable").find(".chk").each(function(){
+	        			if(selValue.indexOf($(this).val()) > -1){
+	        				$(this).attr("checked",true);
+	        			}
+	        		});
+	        	}else if(fdType == 'BOOLEAN'){
+	        		$(".lookupResultTable").find(".rad").each(function(){
+	        			if(selValue.indexOf($(this).val()) > -1){
+	        				$(this).attr("checked",true);
+	        			}
+	        		});
+	        	}else if(fdType == 'REFERENCE'){
+	        		$(".lookupResultTable").find(".lkpChk").each(function(){
+	        			if(selValue.indexOf($(this).val()) > -1){
+	        				$(this).attr("checked",true);
+	        			}
+	        		});
+	        	}
+        	}
+        }
+        initSelValue();
+    </script>
+</apex:page>

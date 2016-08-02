@@ -1,0 +1,19 @@
+<apex:page standardController="Trilux_Project__c" sidebar="false">
+    <apex:includeLightning />
+    <style>
+    .assistiveText{display:none !important} 
+    ::-ms-clear { display:none !important}
+    </style>
+    <div id="lightning" />
+    
+    <script>
+        $Lightning.use("c:LtngSearchOpportunityApp", function() {
+          $Lightning.createComponent("c:LtngSearchOpportunityCmp",
+          { label : "" },
+          "lightning",
+          function(cmp) {
+            // do some stuff
+          });
+        });
+    </script>
+</apex:page>

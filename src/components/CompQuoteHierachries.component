@@ -1,0 +1,115 @@
+<apex:component controller="CompQuoteHierachries" allowDML="true" access="global">
+	<apex:stylesheet value="{!URLFOR($Resource.CompQuoteHierachriesCSS)}" />
+	<script type="text/javascript" src="{!URLFOR($Resource.CompQuoteHierachriesJS)}"></script>
+	<apex:includeScript value="{!URLFOR($Resource.Library_jQuery, 'jQuery/jquery-1.10.2.min.js')}" />
+	<apex:attribute name="oppIds" type="String" assignTo="{!opportunityIds}" access="global"  description="" />
+	<apex:attribute name="coType" type="String" assignTo="{!cType}" access="global" description=""/>
+	<div id="convas" style="display:none;">
+		
+	</div>
+	<div id="mask"><img src="/img/loading.gif" style="margin: 200px auto; padding-left: 50%;" /></div> 
+	<apex:form id="pageForm">
+		<apex:actionFunction name="initQuote" action="{!initFirstHierachy}" reRender="pageForm" oncomplete="showData()"/>
+			<apex:outputPanel >
+	        <div id="getJson" style="display: none;"><apex:outputPanel id="ss1" styleClass="cont">{!hierJson}</apex:outputPanel></div>
+	        <div id="infoDiv">
+		        <table width="100%" cellspacing="0" border="0" paddspacing="0">
+					<tbody id="hierCon">
+						
+					</tbody>		
+				</table>
+			</div>
+		</apex:outputPanel>
+		
+		
+		
+    </apex:form>
+    <script> 
+		var boIcon = "{!$Resource.BO_Icon}";
+		var coIcon = "{!$Resource.CO_Icon}";
+		var ordIcon = "{!$Resource.Order_Icon}";
+		
+		var cType = "{!cType}";
+		initQuote();
+		
+		function getChild(obj, id,ind) {
+			var str = '', bgc = '', prevId = '', bgc = '', selTr = $(obj).parentsUntil("tr").parent(), nextAll = null,ind = parseInt(selTr.attr("inc")) + 1,pic = "";
+			if($(obj).html() == "+") {
+				$(obj).html('-'); 
+				if(!selTr.data("haveChild")) {
+					
+					showMask(); 
+					Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CompQuoteHierachries.getChildRd}",id, function(result, event) {
+		                if (event.status) {
+		                	$("#convas").html(result);
+		                	var json = $.parseJSON($("#convas").html());
+		                	
+		                	
+		                	for(var i = json.length - 1; i >= 0; i--) { 
+		                    	var qType = json[i].quoteType;
+								if(qType == 'AF'){
+									pic = boIcon;
+								}else if(qType == 'AG'){
+									pic = coIcon;
+								}else if(qType == 'Order'){
+									pic = ordIcon;
+								}else{
+								    pic = '';
+								}
+								str += '<tr id="'+json[i].recordId+'" inc="' + ind + '">'
+											+'<td class="tdStyle">'
+												+'<span onclick="getChild(this, \''+json[i].recordId+'\','+(ind + 1)+')" style="padding-left:'+ind * 20+'px;">+</span>'
+								if(str != ''){
+									str += '<img src="'+pic+'" height="16" width="16" />';
+								}
+								str += '</td>' 
+											+'<td class="tdStyle" onclick="openRecord(\''+json[i].recordId+'\');" style="cursor:pointer;">' + json[i].quoteInfo + '</td>'
+										+'</tr>';
+							}
+							if(str != '' || selTr.next().attr("inc") > selTr.attr("inc")) {
+								selTr.data("haveChild", 2);
+							} else {
+								selTr.data("haveChild", 1);
+							}
+							$("#mask").hide();
+							
+							var strT = $(str);
+							selTr.after(strT);
+		                } else {
+		                    showPopup(event.message);
+		                    return false;
+		                }
+		            });
+				}else {
+					nextAll = selTr.nextAll();
+					for(var i = 0; i < nextAll.size(); i++) {
+						if(nextAll.eq(i).attr("inc") <= selTr.attr("inc")) {
+							break;
+						} else {
+							if(parseInt(nextAll.eq(i).attr("inc")) - 1 == selTr.attr("inc")){
+								nextAll.eq(i).show();
+								nextAll.eq(i).find("span").html("+");
+							} else {
+								nextAll.eq(i).hide();
+							}
+								
+						}
+					}
+				}
+			}else {
+				if(selTr.data("haveChild") == 2) {
+					$(obj).html('+');
+					nextAll = selTr.nextAll();
+					for(var i = 0; i < nextAll.size(); i++) {
+						if(nextAll.eq(i).attr("inc") <= selTr.attr("inc")) {
+							break;
+						} else {
+							nextAll.eq(i).hide();
+						}
+					}
+					
+				} 
+			}
+		}
+	</script>
+</apex:component>

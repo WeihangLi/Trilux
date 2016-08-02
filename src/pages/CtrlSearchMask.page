@@ -1,0 +1,145 @@
+<apex:page controller="CtrlSearchMask">
+<apex:includeScript value="{!URLFOR($Resource.Library_jQuery, 'jQuery/jquery-1.10.2.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.CtrlSearchMask_JS)}" /> 
+<apex:stylesheet value="{!URLFOR($Resource.CtrlSearchMask_CSS)}" />  
+<style>
+#pageLoading{top:0px;left:0px;text-align: center; width: 100%; height: 100%; background-color: #FFF; 
+                opacity: 0.85; position: fixed; z-index: 8000; filter: alpha(opacity = 85); background-repeat: no-repeat; 
+                background-position: center center; background-image: url("{!URLFOR($Resource.ITB_Images,'loading.gif')}");}
+#removePic{background-image: url("{!URLFOR($Resource.ITB_Images,'closeSprite16.gif')}");
+	background-position: 16px -47px;
+    height: 16px;
+    width: 16px;
+    margin-left: 15px;
+    border:0px;
+}
+</style>
+<script>
+	var rs1 = '{!URLFOR($Resource.ITB_Images,"loading.gif")}';
+	function setFocusOnLoad(){}
+	var map_fieldType_operator = JSON.parse("{!JSENCODE(map_operators_type)}");
+</script> 
+	<apex:form id="theForm">
+		<apex:actionFunction name="changeObjectName" action="{!changeObj}" oncomplete="setDefaultField();hideLoading();" reRender="filterPanel,resultPanel"/>
+		<apex:actionFunction name="noObjSelected" action="{!changeObj}" oncomplete="hideLoading();" reRender="filterPanel,resultPanel"/>
+		<apex:actionFunction name="delAccRecord" action="{!deleteRecord}" oncomplete="hideLoading();" reRender="resultPanel,paramPanel" />
+		<div class="filterDiv">
+			<div class="subDiv">
+				<apex:outputLabel style="font-weight: bold;margin-left: 25px;color: #4a4a56;" value="{!$Label.Choose_Object_Label}" />
+				<apex:selectList styleClass="objName" value="{!selObject}" size="1" style="width:200px;margin-left: 50px;" onchange="changeSelObj(this)">
+					<apex:selectOptions value="{!ObjItems}" />
+				</apex:selectList>
+			</div>
+		</div>
+		<apex:outputPanel id="filterPanel"> 
+			<apex:inputText value="{!defaultOp}" styleClass="defaultOp hide" />
+			<apex:inputText value="{!defaultVal}" styleClass="defaultVal hide" />
+			<apex:outputPanel rendered="{!isShowFilterPanel}">
+				<div class="filterDiv filedFilterDiv"> 
+					<table class="declarativeFilterTable" border="0" cellpadding="0" cellspacing="0">
+						<tr>
+							<td><apex:outputLabel styleClass="headerLabel" value="{!$Label.Field}" /></td>
+							<td><apex:outputLabel styleClass="headerLabel headCs" value="{!$Label.Operator}" /></td>
+							<td><apex:outputLabel styleClass="headerLabel headCs" value="{!$Label.Value}" /></td>
+						</tr>
+						<apex:repeat value="{!list_repeatTr}" var="info">
+							<tr class="filterTr">
+								<td class="filedCol" id="{!info}">
+									<apex:selectList value="{!selFilter}" size="1" styleClass="column" onchange="changeFiled(this);">
+										<apex:selectOptions value="{!FilterFieldsItems}" />
+									</apex:selectList>
+								</td>
+								<td>
+									<select size="1" class="operator"> 
+			                            <option value="">{!$label.None_Value}</option>
+			                        </select>
+								</td>
+								<td class="selValCol">
+									<input type="text" value="" maxlength="80" size="20" class="fVal"/>
+									<input type="hidden" value="" class="hideVal"/>
+								</td>
+								<td class="lkpIconTd" >
+									<a href="#" onclick="openLookUpWindow(this)" style="display: inline-block;">
+		                                <img style="display: none" src="/s.gif" alt="Select Values" class="lookupIcon" onblur="this.className = 'lookupIcon';"
+		                                    onfocus="this.className = 'lookupIconOn';"
+		                                    onmouseout="this.className = 'lookupIcon';this.className = 'lookupIcon';"
+		                                    onmouseover="this.className = 'lookupIconOn';this.className = 'lookupIconOn';"
+		                                    title="Select_Values" /> 
+		                            </a>
+		                            <span class="removeSpan" onclick="removeRows(this)"><img src="/s.gif" id="removePic"></img></span>
+								</td>
+							</tr>  
+						</apex:repeat>
+					</table>
+					<div class="hide errorMsgDiv">
+						<br/>
+						<span class="errorMsg">{!$Label.Search_Mask_Error_Msg}</span>
+					</div>
+					<br />
+					<a style="cursor:pointer;margin-left: 15px;" onclick="addRows();" >{!$Label.Add_Another_Field_Label}</a>
+					<input type="button" onclick="getFilterCondition()" value="{!$Label.Start_Search_Button}" class="btn" style="margin-left: 250px;"/>
+					<apex:actionFunction name="searchAccount" action="{!searchResult}" oncomplete="calTdWidth();" reRender="resultPanel"/>
+				</div>
+			</apex:outputPanel>
+		</apex:outputPanel> 
+		<apex:outputPanel id="resultPanel" >
+			<apex:outputPanel rendered="{!isShowResultPanel}">
+				<div style="position: relative;margin-top: 15px;" class="reAllDiv">
+					<div class="copydiv">
+						<table class="resultHeaderTable" border="0" cellpadding="0" cellspacing="0" id="result_Table">
+							<thead>
+								<tr class="theader">
+									<td width="70px"><div style="width:70px;height:;">{!$Label.Action_Title}</div></td>
+			                        <apex:repeat value="{!list_shownFields}" var="fid">
+		                        		<td id="{!fid}" onclick="tsort(this,'{!fid}',{!selObject});">
+			                        		<div style="width:;height:;">{!IF(map_fdName_fdLabel[fid] == 'Parent Account ID','Parent Account',map_fdName_fdLabel[fid])}
+											<span class="up {!IF(true,'hide','')}">▲</span><span class="down hide">▼</span>
+											</div>
+		                        		</td> 
+			                        </apex:repeat>
+		                        </tr>
+							</thead>
+						</table>
+					</div>
+					<div class="infoDiv resultInfoDiv">
+						<table class="resultInfoTable" id="resultInfoTable" border="0" cellpadding="0" cellspacing="0" >
+							<tbody>
+								<apex:repeat value="{!list_results}" var="result">
+									<tr>
+										<td width="70px">
+											<div style="width:70px;height:;">
+												<a href="/{!result.Id}/e?retURL=%2F{!result.Id}" class="actionLink">Edit</a>
+												&nbsp;|&nbsp;
+												<a href="#" class="actionLink" onclick="delRecord('{!result.Id}')">Del</a>
+											</div>
+										</td>
+										<apex:repeat value="{!list_shownFields}" var="item">
+											<td>
+												<div style="width:;height:;display:{!if(item != 'Name','','none')}"><apex:outputField value="{!result[item]}" /></div>
+												<div style="width:;height:;display:{!if(item == 'Name','','none')}"><a href="" class="aLink" onclick="openRecord('{!result.Id}')"><apex:outputField value="{!result[item]}" /></a></div>
+											</td>
+										</apex:repeat>
+									</tr>
+								</apex:repeat>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</apex:outputPanel>
+		</apex:outputPanel>
+		<div id="status_window" style="display:none;"></div> 
+		<apex:outputPanel id="paramPanel">
+			<span class="delIdVal">
+				<apex:inputHidden value="{!delRecordId}" />
+			</span>
+			<span class="strFilter">
+				<apex:inputHidden value="{!filter_Str}"/>
+			</span>
+			<span id="sortInfo">
+	            <apex:inputHidden value="{!strOrderBy}"/>
+	        </span>
+		</apex:outputPanel>
+	</apex:form>
+	<div id="pageLoading" class="hide"></div>
+	<div id="mask" style="display:none;"></div>
+</apex:page>

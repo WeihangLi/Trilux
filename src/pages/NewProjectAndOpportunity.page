@@ -1,0 +1,83 @@
+<apex:page standardController="Trilux_Project__c">
+    <script src="/soap/ajax/27.0/connection.js" type="text/javascript"></script>
+    <script src="/soap/ajax/27.0/apex.js" type="text/javascript"></script>
+    <apex:includeLightning />
+        <style>
+    .assistiveText{display:none !important} 
+    ::-ms-clear { display:none !important}
+    </style>
+    <div id="lightning" />
+    
+    <script>
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        function getDependentOptions (objName, ctrlFieldName, depFieldName) {
+            // Isolate the Describe info for the relevant fields
+            var objDesc = sforce.connection.describeSObject(objName);
+            var ctrlFieldDesc, depFieldDesc;
+            var found = 0;
+            for (var i=0; i<objDesc.fields.length; i++) {
+                var f = objDesc.fields[i];
+                if (f.name == ctrlFieldName) {
+                    ctrlFieldDesc = f;
+                    found++;
+                } else if (f.name == depFieldName) {
+                    depFieldDesc = f;
+                    found++;
+                }
+                if (found==2) break; 
+            }
+        
+            // Set up return object
+            var dependentOptions = {};
+            var gcpValues = new Array();
+            var ctrlValues = ctrlFieldDesc.picklistValues;
+            for (var i=0; i<ctrlValues.length; i++) {
+                dependentOptions[ctrlValues[i].value] = [];
+            }
+        
+            var base64 = new sforce.Base64Binary("");
+            function testBit (validFor, pos) {
+                var byteToCheck = Math.floor(pos/8);
+                var bit = 7 - (pos % 8);
+                return ((Math.pow(2, bit) & validFor.charCodeAt(byteToCheck)) >> bit) == 1;
+            }
+            
+            // For each dependent value, check whether it is valid for each controlling value
+            var depValues = depFieldDesc.picklistValues;
+            for (var i=0; i<depValues.length; i++) {
+                var thisOption = depValues[i];
+                thisOption.label = depValues[i].label;
+                thisOption.value= depValues[i].value;
+                var validForDec = base64.decode(thisOption.validFor);
+                for (var ctrlValue=0; ctrlValue<ctrlValues.length; ctrlValue++) {
+                    if (testBit(validForDec, ctrlValue)) {
+                        dependentOptions[ctrlValues[ctrlValue].value].push(thisOption);
+                    }
+                }
+            }
+            return dependentOptions;
+        }
+        
+        
+        var OBJ_NAME = 'Trilux_Project__c';
+        var CTRL_FIELD_NAME = "Project_Location_Country__c";
+        var DEP_FIELD_NAME = "Project_Location_State__c";
+        var countryOptions = getDependentOptions(OBJ_NAME, CTRL_FIELD_NAME, DEP_FIELD_NAME);
+        var salesChannelOptions = getDependentOptions('Opportunity', 'SORG__c', 'Sales_Channels__c');
+        var salesRegionOptions = getDependentOptions('Opportunity', 'SORG__c', 'Sales_Regions__c');
+        var lostReasonOptions = getDependentOptions('Opportunity', 'StageName', 'Opportunity_Lost_Reason__c');
+
+        $Lightning.use("c:LtngNewProjectOpportunityApp", function() {
+          $Lightning.createComponent("c:LtngProjectOppyCmp",
+          { label : "" ,
+            CountryOptions : countryOptions ,
+            SalesChannelOptions : salesChannelOptions ,
+            SalesRegionOptions : salesRegionOptions ,
+            LostReasonOptions : lostReasonOptions },
+          "lightning",
+          function(cmp) {
+            // do some stuff
+          });
+        });
+    </script>
+</apex:page>

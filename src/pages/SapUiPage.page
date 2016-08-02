@@ -1,0 +1,9 @@
+<apex:page standardController="Opportunity" docType="html-5.0" showHeader="false" sidebar="false" standardStylesheets="false">
+    <script>
+    var oShell = new ActiveXObject("WScript.Shell");
+    
+    if (oShell) {
+        oShell.run('sapshcut.exe -system="TRT" -client="050" -user="" -language="DE" -Command="*ZA02N VBAK-VBELN={!Opportunity.SAP_Opportunity_ID__c}"');
+    }
+    </script>
+</apex:page>
